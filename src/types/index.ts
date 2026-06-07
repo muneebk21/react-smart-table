@@ -23,6 +23,8 @@ export interface PaginationConfig {
     totalItems: number;
 }
 
+import type { TableThemeInput } from '../theme';
+
 export interface SmartTableProps<T = any> {
     data: T[];
     columns: Column<T>[];
@@ -30,6 +32,7 @@ export interface SmartTableProps<T = any> {
     filterable?: boolean;
     pagination?: boolean;
     itemsPerPage?: number;
+    theme?: TableThemeInput;
     className?: string;
     style?: React.CSSProperties;
     onRowClick?: (row: T) => void;

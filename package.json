@@ -1,17 +1,66 @@
 {
   "name": "react-smart-table",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "A lightweight, fully typed React data table with sorting, filtering, pagination, and theming.",
   "type": "module",
+  "license": "MIT",
+  "author": "Muneeb Khan",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MuneebKhan1996/react-smart-table.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MuneebKhan1996/react-smart-table/issues"
+  },
+  "homepage": "https://github.com/MuneebKhan1996/react-smart-table#readme",
+  "keywords": [
+    "react",
+    "table",
+    "data-table",
+    "datagrid",
+    "sorting",
+    "filtering",
+    "pagination",
+    "typescript",
+    "dark-mode",
+    "theming"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/react-smart-table.js",
+  "module": "./dist/react-smart-table.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/react-smart-table.js",
+      "default": "./dist/react-smart-table.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build --mode lib && tsc -p tsconfig.build.json",
+    "build:demo": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
   },
-  "dependencies": {
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -23,6 +72,8 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12"
