@@ -280,15 +280,6 @@ This emits the publishable package to `dist/`:
 | `index.d.ts`            | TypeScript declarations          |
 | `styles.css`            | Default table styles             |
 
-### Publish to npm
-
-```bash
-npm login
-npm publish
-```
-
-`prepublishOnly` runs the library build automatically before publishing.
-
 ## License
 
 MIT

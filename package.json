@@ -1,5 +1,5 @@
 {
-  "name": "react-smart-table",
+  "name": "@muneebkhan/react-smart-table",
   "version": "0.1.0",
   "description": "A lightweight, fully typed React data table with sorting, filtering, pagination, and theming.",
   "type": "module",
