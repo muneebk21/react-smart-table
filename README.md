@@ -19,14 +19,14 @@ Styles are included automatically when you import `SmartTable` — no separate C
 If your setup does not pick up side-effect CSS imports, load styles manually:
 
 ```tsx
-import 'react-smart-table/styles.css';
-import { SmartTable } from 'react-smart-table';
+import '@mkforgeui/react-smart-table/styles.css';
+import { SmartTable } from '@mkforgeui/react-smart-table';
 ```
 
 ## Quick start
 
 ```tsx
-import { SmartTable, type Column } from 'react-smart-table';
+import { SmartTable, type Column } from '@mkforgeui/react-smart-table';
 
 interface User {
   id: number;
@@ -258,7 +258,7 @@ import type {
 Clone the repo and run the interactive demo:
 
 ```bash
-git clone https://github.com/MuneebKhan1996/react-smart-table.git
+git clone https://github.com/muneebk21/react-smart-table.git
 cd react-smart-table
 npm install
 npm run dev
