@@ -10,10 +10,6 @@ npm install @mkforgeui/react-smart-table
 
 **Peer dependencies:** React 18 or 19.
 
-```bash
-npm install @mkforgeui/react-smart-table
-```
-
 Styles are included automatically when you import `SmartTable` — no separate CSS import is required in most bundlers (Vite, Webpack, etc.).
 
 If your setup does not pick up side-effect CSS imports, load styles manually:
