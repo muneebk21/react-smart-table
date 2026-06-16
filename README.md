@@ -5,13 +5,13 @@ A lightweight, fully typed React data table with sorting, filtering, pagination,
 ## Installation
 
 ```bash
-npm install react-smart-table
+npm install @mkforgeui/react-smart-table
 ```
 
 **Peer dependencies:** React 18 or 19.
 
 ```bash
-npm install react react-dom
+npm install @mkforgeui/react-smart-table
 ```
 
 Styles are included automatically when you import `SmartTable` — no separate CSS import is required in most bundlers (Vite, Webpack, etc.).
