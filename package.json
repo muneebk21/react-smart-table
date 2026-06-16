@@ -7,12 +7,12 @@
   "author": "Muneeb Khan",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MuneebKhan1996/react-smart-table.git"
+    "url": "git+https://github.com/muneebk21/react-smart-table.git"
   },
   "bugs": {
-    "url": "https://github.com/MuneebKhan1996/react-smart-table/issues"
+    "url": "https://github.com/muneebk21/react-smart-table/issues"
   },
-  "homepage": "https://github.com/MuneebKhan1996/react-smart-table#readme",
+  "homepage": "https://github.com/muneebk21/react-smart-table#readme",
   "keywords": [
     "react",
     "table",
