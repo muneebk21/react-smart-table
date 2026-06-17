@@ -1,10 +1,11 @@
-import { type Column } from '../types';
+import { type InternalColumn } from '../types';
 
 interface SmartTableBodyProps<T> {
     data: T[];
-    columns: Column<T>[];
+    columns: InternalColumn<T>[];
     onRowClick?: (row: T) => void;
     emptyMessage?: string;
+    columnWidths?: Record<string, number>,
 }
 
 function alignClass(align?: 'left' | 'center' | 'right') {
@@ -35,12 +36,13 @@ export function SmartTableBody<T>({
     columns,
     onRowClick,
     emptyMessage = 'No data available',
+    columnWidths = {},
 }: SmartTableBodyProps<T>) {
     if (data.length === 0) {
         return (
             <tbody className="rst-tbody">
                 <tr className="rst-tr">
-                    <td className="rst-empty" colSpan={columns.length}>
+                    <td style={{ width: columnWidths[columns[0]?.id] ?? 150 }} className="rst-empty" colSpan={columns.length}>
                         <EmptyIcon />
                         {emptyMessage}
                     </td>
@@ -61,6 +63,7 @@ export function SmartTableBody<T>({
                 >
                     {columns.map((column) => (
                         <td
+                            style={{ width: columnWidths[column.id] ?? column.width ?? 150 }}
                             key={String(column.key)}
                             className={['rst-td', alignClass(column.align)].join(' ')}
                         >

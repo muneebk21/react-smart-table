@@ -134,6 +134,20 @@ function App() {
                     theme={tableTheme}
                 />
             </section>
+
+            <section className="demo-section">
+                <h2>With Resizeabel Columns</h2>
+                <p className="demo-description">Double click header cell to resize.</p>
+                <SmartTable
+                    data={data}
+                    columns={columns}
+                    onRowClick={handleRowClick}
+                    sortable
+                    filterable
+                    resizeable
+                    theme={tableTheme}
+                />
+            </section>
         </div>
     );
 }

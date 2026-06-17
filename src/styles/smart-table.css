@@ -124,7 +124,7 @@
 .rst-table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 /* Header */
@@ -134,6 +134,7 @@
 }
 
 .rst-th {
+  position: relative;
   padding: var(--rst-spacing-md) var(--rst-spacing-lg);
   font-weight: 600;
   font-size: 0.8125rem;
@@ -406,4 +407,11 @@
 .rst-badge--neutral {
   color: var(--rst-color-badge-neutral-text);
   background: var(--rst-color-badge-neutral-bg);
+}
+
+.rst-resizer {
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  background: transparent;
 }
