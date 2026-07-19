@@ -320,6 +320,10 @@ This emits the publishable package to `dist/`:
 | `index.d.ts`            | TypeScript declarations          |
 | `styles.css`            | Default table styles             |
 
+## Demo
+
+👉 **Live Demo:** https://react-smart-table-beryl.vercel.app/
+
 ## License
 
 MIT
