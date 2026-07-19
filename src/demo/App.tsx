@@ -20,19 +20,19 @@ function App() {
     const [useCustomBrand, setUseCustomBrand] = useState(false);
 
     const [data] = useState<User[]>([
-        { id: 1, name: 'Anyan John Doe', email: 'johnjohnjohnjohnjohnjohnjohnjohnjohnjohnjohn@example.com', age: 30, status: 'active' },
-        { id: 2, name: 'Anyan Jane Smith Anyan Jane Smith Anyan Jane Smith Anyan Jane Smith Anyan Jane Smith ', email: 'jane@example.com', age: 25, status: 'active' },
-        { id: 3, name: 'Anyan Bob Johnson', email: 'bob@example.com', age: 35, status: 'inactive' },
-        { id: 4, name: 'Anyan Alice Brown', email: 'alice@example.com', age: 28, status: 'active' },
-        { id: 5, name: 'Anyan Charlie Wilson', email: 'charlie@example.com', age: 32, status: 'inactive' },
+        { id: 1, name: 'John Doe', email: 'john@example.com', age: 30, status: 'active' },
+        { id: 2, name: 'Jane Smith ', email: 'jane@example.com', age: 25, status: 'active' },
+        { id: 3, name: 'Bob Johnson', email: 'bob@example.com', age: 35, status: 'inactive' },
+        { id: 4, name: 'Alice Brown', email: 'alice@example.com', age: 28, status: 'active' },
+        { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com', age: 32, status: 'inactive' },
     ]);
 
     const [selectableData, setSelectableData] = useState<User[]>([
-        { id: 1, name: 'Anyan John Doe', email: 'john@example.com', age: 30, status: 'active' },
-        { id: 2, name: 'Anyan Jane Smith', email: 'jane@example.com', age: 25, status: 'active' },
-        { id: 3, name: 'Anyan Bob Johnson', email: 'bob@example.com', age: 35, status: 'inactive' },
-        { id: 4, name: 'Anyan Alice Brown', email: 'alice@example.com', age: 28, status: 'active' },
-        { id: 5, name: 'Anyan Charlie Wilson', email: 'charlie@example.com', age: 32, status: 'inactive' },
+        { id: 1, name: 'John Doe', email: 'john@example.com', age: 30, status: 'active' },
+        { id: 2, name: 'Jane Smith', email: 'jane@example.com', age: 25, status: 'active' },
+        { id: 3, name: 'Bob Johnson', email: 'bob@example.com', age: 35, status: 'inactive' },
+        { id: 4, name: 'Alice Brown', email: 'alice@example.com', age: 28, status: 'active' },
+        { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com', age: 32, status: 'inactive' },
     ]);
     const [selectedCount, setSelectedCount] = useState(0);
 
