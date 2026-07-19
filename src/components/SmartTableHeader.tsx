@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { type InternalColumn, type SortConfig } from '../types';
 
 interface SmartTableHeaderProps<T> {
@@ -8,7 +9,10 @@ interface SmartTableHeaderProps<T> {
     filterable?: boolean;
     filters?: Record<string, string>;
     onFilter?: (key: string, value: string) => void;
-    columnWidths?: Record<string, number>;
+    selectable?: boolean;
+    allSelected?: boolean;
+    someSelected?: boolean;
+    onToggleAll?: () => void;
 }
 
 function SortIcon({ direction }: { direction?: 'asc' | 'desc' | null | undefined }) {
@@ -32,12 +36,7 @@ function alignClass(align?: 'left' | 'center' | 'right') {
     return `rst-th--align-${align || 'left'}`;
 }
 
-function getColumnWidth<T>(
-    column: InternalColumn<T>,
-    columnWidths: Record<string, number>,
-): number {
-    const storedWidth = columnWidths[column.id];
-    if (typeof storedWidth === 'number') return storedWidth;
+function getColumnWidth<T>(column: InternalColumn<T>): number {
     if (typeof column.width === 'number') return column.width;
     if (typeof column.width === 'string') {
         const parsed = Number.parseFloat(column.width);
@@ -54,16 +53,39 @@ export function SmartTableHeader<T>({
     filterable,
     filters,
     onFilter,
-    columnWidths = {},
+    selectable,
+    allSelected,
+    someSelected,
+    onToggleAll,
 }: SmartTableHeaderProps<T>) {
+    const selectAllRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (selectAllRef.current) {
+            selectAllRef.current.indeterminate = !allSelected && Boolean(someSelected);
+        }
+    }, [allSelected, someSelected]);
+
     return (
         <thead className="rst-thead">
             <tr>
+                {selectable && (
+                    <th className="rst-th rst-th--checkbox">
+                        <input
+                            ref={selectAllRef}
+                            type="checkbox"
+                            className="rst-checkbox"
+                            checked={Boolean(allSelected)}
+                            onChange={onToggleAll}
+                            aria-label="Select all rows"
+                        />
+                    </th>
+                )}
                 {columns.map((column) => {
                     const key = String(column.key);
                     const isSortable = Boolean(sortable && column.sortable);
                     const isSorted = sortConfig?.key === column.key;
-                    const width = getColumnWidth(column, columnWidths);
+                    const width = getColumnWidth(column);
                     const thClassName = [
                         'rst-th',
                         alignClass(column.align),

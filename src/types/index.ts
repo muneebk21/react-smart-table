@@ -1,3 +1,5 @@
+export type RowId = string | number;
+
 export interface Column<T> {
     key: keyof T | string | number | symbol;
     header: string;
@@ -5,7 +7,6 @@ export interface Column<T> {
     filterable?: boolean;
     width?: string | number;
     minWidth?: number;
-    maxWidth?: number;
     align?: 'left' | 'center' | 'right';
     render?: (value: unknown, row: T) => React.ReactNode;
 }
@@ -43,4 +44,20 @@ export interface SmartTableProps<T> {
     style?: React.CSSProperties;
     onRowClick?: (row: T) => void;
     emptyMessage?: string;
+
+    /** Enables the select-all header checkbox and a per-row checkbox column. */
+    selectable?: boolean;
+    /**
+     * Identifies a row for selection. `index` is the row's position in the
+     * `data` array you passed in (not its position on the current page).
+     * Defaults to `row.id` when present, otherwise falls back to `index`.
+     */
+    getRowId?: (row: T, index: number) => RowId;
+    onSelectionChange?: (selectedRowIds: RowId[], selectedRows: T[]) => void;
+    /** Rendered inside the bulk-action toolbar that appears while rows are selected. */
+    renderBulkActions?: (selection: {
+        selectedRowIds: RowId[];
+        selectedRows: T[];
+        clearSelection: () => void;
+    }) => React.ReactNode;
 }

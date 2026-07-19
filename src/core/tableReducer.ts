@@ -54,20 +54,31 @@ export function tableReducer(
                 },
             };
 
-        case "SET_COLUMN_WIDTH":
-            return {
-                ...state,
-                columnWidths: {
-                    ...state.columnWidths,
-                    [action.key]: action.width,
-                },
-            };
-
         case "SET_LOADING":
             return {
                 ...state,
                 loading: action.value,
             };
+
+        case "TOGGLE_ROW_SELECTION": {
+            const next = new Set(state.selectedRowIds);
+            if (next.has(action.id)) next.delete(action.id);
+            else next.add(action.id);
+            return { ...state, selectedRowIds: next };
+        }
+
+        case "TOGGLE_ALL_SELECTION": {
+            const allSelected = action.ids.every((id) => state.selectedRowIds.has(id));
+            const next = new Set(state.selectedRowIds);
+            for (const id of action.ids) {
+                if (allSelected) next.delete(id);
+                else next.add(id);
+            }
+            return { ...state, selectedRowIds: next };
+        }
+
+        case "CLEAR_SELECTION":
+            return { ...state, selectedRowIds: new Set() };
 
         default:
             return state;

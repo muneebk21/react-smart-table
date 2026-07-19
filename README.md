@@ -1,6 +1,6 @@
 # react-smart-table
 
-A lightweight, fully typed React data table with sorting, filtering, pagination, row interactions, and a built-in theming system (light, dark, and system mode).
+A lightweight, fully typed React data table with sorting, filtering, pagination, row selection with bulk actions, responsive horizontal scrolling, and a built-in theming system (light, dark, and system mode).
 
 ## Installation
 
@@ -9,6 +9,8 @@ npm install @mkforgeui/react-smart-table
 ```
 
 **Peer dependencies:** React 18 or 19.
+
+Built and compiled with the [React Compiler](https://react.dev/learn/react-compiler) for automatic memoization — no extra setup required on your end, and it still runs on React 18.
 
 Styles are included automatically when you import `SmartTable` — no separate CSS import is required in most bundlers (Vite, Webpack, etc.).
 
@@ -76,6 +78,8 @@ Each column is configured with a `Column<T>` object:
 
 Built-in badge classes: `rst-badge--success`, `rst-badge--danger`, `rst-badge--neutral`. These respect the active theme.
 
+Selection-related classes you can target for custom styling: `rst-checkbox` (the checkbox inputs), `rst-tr--selected` (a selected row), `rst-bulk-toolbar` / `rst-bulk-count` / `rst-bulk-actions` (the bulk-action toolbar), and `rst-btn--ghost` (the built-in "Clear selection" button style).
+
 ## SmartTable props
 
 | Prop            | Type                         | Default               | Description                          |
@@ -91,6 +95,10 @@ Built-in badge classes: `rst-badge--success`, `rst-badge--danger`, `rst-badge--n
 | `style`         | `React.CSSProperties`        | —                     | Inline styles on the table root      |
 | `onRowClick`    | `(row: T) => void`           | —                     | Called when a row is clicked         |
 | `emptyMessage`  | `string`                     | `'No data available'` | Message shown when `data` is empty   |
+| `selectable`    | `boolean`                    | `false`               | Show checkboxes and enable row selection |
+| `getRowId`      | `(row: T, index: number) => string \| number` | `row.id` or `index` | Identifies a row for selection |
+| `onSelectionChange` | `(ids, rows) => void`    | —                     | Called whenever the selection changes |
+| `renderBulkActions` | `(selection) => React.ReactNode` | —              | Renders your action buttons in the bulk-action toolbar |
 
 ## Features
 
@@ -124,6 +132,41 @@ Pagination controls appear only when there is more than one page.
   onRowClick={(row) => console.log(row)}
 />
 ```
+
+### Row selection & bulk actions
+
+Set `selectable` to show a checkbox column with a header select-all control (indeterminate when only some rows on the page are selected). A toolbar with your bulk actions appears above the table whenever the selection is non-empty.
+
+```tsx
+<SmartTable
+  data={users}
+  columns={columns}
+  selectable
+  onSelectionChange={(ids, rows) => console.log(ids, rows)}
+  renderBulkActions={({ selectedRowIds, selectedRows, clearSelection }) => (
+    <button
+      onClick={() => {
+        deleteUsers(selectedRowIds);
+        clearSelection();
+      }}
+    >
+      Delete selected ({selectedRows.length})
+    </button>
+  )}
+/>
+```
+
+Selection identity defaults to `row.id` when present, falling back to the row's index in your `data` array otherwise. If your rows don't have a stable `id` field, pass `getRowId` explicitly so selection survives sorting and filtering correctly:
+
+```tsx
+<SmartTable data={users} columns={columns} selectable getRowId={(row) => row.uuid} />
+```
+
+Select-all applies to the currently visible page — with `pagination` off, that's simply every row.
+
+### Responsive behavior
+
+The table body scrolls horizontally on narrow screens instead of clipping columns. A subtle edge-fade shadow appears on whichever side(s) still have hidden columns, and disappears once you've scrolled all the way to that edge. The scroll region is also keyboard-accessible (`tabIndex`, arrow keys) since whether it overflows at all depends on viewport width.
 
 ## Theming
 
@@ -215,7 +258,7 @@ import {
   colorsToCssVariables,
   TABLE_THEME_CSS_VARS,
   resolveTableTheme,
-} from 'react-smart-table';
+} from '@mkforgeui/react-smart-table';
 ```
 
 `TABLE_THEME_CSS_VARS` lists every CSS variable name the package uses.
@@ -225,7 +268,7 @@ import {
 The table logic is also available as standalone hooks if you want to build a custom UI:
 
 ```tsx
-import { useSort, useFilter, usePagination } from 'react-smart-table';
+import { useSort, useFilter, usePagination } from '@mkforgeui/react-smart-table';
 
 const { filteredData, filters, setFilter } = useFilter(data);
 const { sortedData, sortConfig, requestSort } = useSort(filteredData);
@@ -243,10 +286,11 @@ import type {
   SmartTableProps,
   SortConfig,
   FilterConfig,
+  RowId,
   TableTheme,
   TableThemeMode,
   TableThemeColors,
-} from 'react-smart-table';
+} from '@mkforgeui/react-smart-table';
 ```
 
 ## Local development

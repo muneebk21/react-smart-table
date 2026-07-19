@@ -417,6 +417,66 @@
   cursor: not-allowed;
 }
 
+/* Selection */
+
+.rst-th--checkbox,
+.rst-td--checkbox {
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  text-align: center;
+}
+
+.rst-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--rst-color-primary);
+  cursor: pointer;
+}
+
+.rst-tbody .rst-tr--selected {
+  background: var(--rst-color-row-active);
+}
+
+/* Bulk action toolbar */
+
+.rst-bulk-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rst-spacing-md);
+  margin-bottom: var(--rst-spacing-md);
+  padding: var(--rst-spacing-md) var(--rst-spacing-lg);
+  background: var(--rst-color-header-bg);
+  border: 1px solid var(--rst-color-border);
+  border-radius: var(--rst-radius-md);
+}
+
+.rst-bulk-count {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--rst-color-text);
+}
+
+.rst-bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--rst-spacing-sm);
+}
+
+.rst-btn--ghost {
+  background: transparent;
+  color: var(--rst-color-text-muted);
+  border: 1px solid var(--rst-color-border-strong);
+}
+
+.rst-btn--ghost:hover:not(:disabled) {
+  background: var(--rst-color-row-hover);
+  color: var(--rst-color-text);
+}
+
 /* Status badge (optional utility for custom renderers) */
 
 .rst-badge {

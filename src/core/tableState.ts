@@ -1,3 +1,5 @@
+import type { RowId } from "../types";
+
 export type SortDirection = "asc" | "desc" | null;
 
 export interface TableState {
@@ -11,14 +13,10 @@ export interface TableState {
         pageSize: number;
     };
     loading: boolean;
-    columnWidths: Record<string, number>;
-    columnOrder: string[];
+    selectedRowIds: Set<RowId>;
 }
 
-export function createInitialTableState(
-    pageSize: number,
-    columnKeys: string[]
-): TableState {
+export function createInitialTableState(pageSize: number): TableState {
     return {
         sort: { key: null, direction: null },
         filters: {},
@@ -27,7 +25,6 @@ export function createInitialTableState(
             pageSize,
         },
         loading: false,
-        columnWidths: {},
-        columnOrder: columnKeys,
+        selectedRowIds: new Set(),
     };
 }

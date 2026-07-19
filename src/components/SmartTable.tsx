@@ -1,4 +1,4 @@
-import { type SmartTableProps } from '../types';
+import { type RowId, type SmartTableProps } from '../types';
 import { resolveTableTheme } from '../theme';
 import { SmartTableHeader } from './SmartTableHeader';
 import { SmartTableBody } from './SmartTableBody';
@@ -6,6 +6,12 @@ import '../styles/smart-table.css';
 import { useNormalizedColumns } from '../hooks/useNormalizedColumns';
 import { useRef } from 'react';
 import { useTableState } from '../hooks/useTableState';
+
+function defaultGetRowId<T>(row: T, index: number): RowId {
+    const maybeId = (row as Record<string, unknown>)?.id;
+    if (typeof maybeId === 'string' || typeof maybeId === 'number') return maybeId;
+    return index;
+}
 
 function applySort<T extends Record<string, unknown>>(
     rows: T[],
@@ -55,9 +61,12 @@ export function SmartTable<T extends Record<string, unknown>>({
     style,
     onRowClick,
     emptyMessage = 'No data available',
+    selectable = false,
+    getRowId,
+    onSelectionChange,
+    renderBulkActions,
 }: SmartTableProps<T>) {
-    const columnKeys = columns.map((c) => String(c.key));
-    const { state, dispatch } = useTableState(itemsPerPage, columnKeys);
+    const { state, dispatch } = useTableState(itemsPerPage);
 
     const tableWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -72,6 +81,52 @@ export function SmartTable<T extends Record<string, unknown>>({
               state.pagination.page * state.pagination.pageSize,
           )
         : sortedData;
+
+    const originalIndexByRow = new Map<T, number>();
+    data.forEach((row, index) => originalIndexByRow.set(row, index));
+
+    const resolveRowId = (row: T): RowId => {
+        const index = originalIndexByRow.get(row) ?? -1;
+        return getRowId ? getRowId(row, index) : defaultGetRowId(row, index);
+    };
+
+    const selectedRowIds = state.selectedRowIds;
+
+    const emitSelectionChange = (nextIds: Set<RowId>) => {
+        if (!onSelectionChange) return;
+        const selectedRows = data.filter((row) => nextIds.has(resolveRowId(row)));
+        onSelectionChange(Array.from(nextIds), selectedRows);
+    };
+
+    const toggleRow = (row: T) => {
+        const id = resolveRowId(row);
+        const next = new Set(selectedRowIds);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        dispatch({ type: 'TOGGLE_ROW_SELECTION', id });
+        emitSelectionChange(next);
+    };
+
+    const pageRowIds = paginatedData.map((row) => resolveRowId(row));
+    const allPageSelected = pageRowIds.length > 0 && pageRowIds.every((id) => selectedRowIds.has(id));
+    const somePageSelected = pageRowIds.some((id) => selectedRowIds.has(id));
+
+    const toggleAllOnPage = () => {
+        const next = new Set(selectedRowIds);
+        for (const id of pageRowIds) {
+            if (allPageSelected) next.delete(id);
+            else next.add(id);
+        }
+        dispatch({ type: 'TOGGLE_ALL_SELECTION', ids: pageRowIds });
+        emitSelectionChange(next);
+    };
+
+    const clearSelection = () => {
+        dispatch({ type: 'CLEAR_SELECTION' });
+        emitSelectionChange(new Set());
+    };
+
+    const selectedRows = data.filter((row) => selectedRowIds.has(resolveRowId(row)));
 
     const handleSort = (key: string) => dispatch({ type: 'SET_SORT', key });
 
@@ -97,6 +152,28 @@ export function SmartTable<T extends Record<string, unknown>>({
                 ...style,
             }}
         >
+            {selectable && selectedRowIds.size > 0 && (
+                <div className="rst-bulk-toolbar">
+                    <span className="rst-bulk-count">
+                        {selectedRowIds.size} selected
+                    </span>
+                    <div className="rst-bulk-actions">
+                        {renderBulkActions?.({
+                            selectedRowIds: Array.from(selectedRowIds),
+                            selectedRows,
+                            clearSelection,
+                        })}
+                        <button
+                            type="button"
+                            className="rst-btn rst-btn--ghost"
+                            onClick={clearSelection}
+                        >
+                            Clear selection
+                        </button>
+                    </div>
+                </div>
+            )}
+
             <div
                 className="rst-table-wrapper"
                 ref={tableWrapperRef}
@@ -113,14 +190,19 @@ export function SmartTable<T extends Record<string, unknown>>({
                         filterable={filterable}
                         filters={state.filters}
                         onFilter={handleFilter}
-                        columnWidths={state.columnWidths}
+                        selectable={selectable}
+                        allSelected={allPageSelected}
+                        someSelected={somePageSelected}
+                        onToggleAll={toggleAllOnPage}
                     />
                     <SmartTableBody
                         data={paginatedData}
                         columns={normalizedColumns}
                         onRowClick={onRowClick}
                         emptyMessage={emptyMessage}
-                        columnWidths={state.columnWidths}
+                        selectable={selectable}
+                        isRowSelected={(row) => selectedRowIds.has(resolveRowId(row))}
+                        onToggleRow={toggleRow}
                     />
                 </table>
             </div>

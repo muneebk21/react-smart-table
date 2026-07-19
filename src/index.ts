@@ -7,6 +7,7 @@ export type {
     SortConfig,
     FilterConfig,
     SmartTableProps,
+    RowId,
 } from './types';
 
 // Theme system
