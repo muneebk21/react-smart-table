@@ -1,12 +1,15 @@
 import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import react, { reactCompilerPreset } from '@vitejs/plugin-react'
+import babel from '@rolldown/plugin-babel'
+
+const reactCompiler = babel({ presets: [reactCompilerPreset({ target: '18' })] })
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   if (mode === 'lib') {
     return {
-      plugins: [react()],
+      plugins: [react(), reactCompiler],
       publicDir: false,
       build: {
         lib: {
@@ -16,7 +19,7 @@ export default defineConfig(({ mode }) => {
           fileName: () => 'react-smart-table.js',
         },
         rollupOptions: {
-          external: ['react', 'react-dom', 'react/jsx-runtime'],
+          external: ['react', 'react-dom', 'react/jsx-runtime', 'react-compiler-runtime'],
           output: {
             assetFileNames: (assetInfo) => {
               if (assetInfo.names?.some((name) => name.endsWith('.css'))) {
@@ -34,7 +37,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [react()],
+    plugins: [react(), reactCompiler],
     root: '.',
     server: {
       port: 3000,

@@ -5,11 +5,25 @@ interface SmartTableBodyProps<T> {
     columns: InternalColumn<T>[];
     onRowClick?: (row: T) => void;
     emptyMessage?: string;
-    columnWidths?: Record<string, number>,
+    columnWidths?: Record<string, number>;
 }
 
 function alignClass(align?: 'left' | 'center' | 'right') {
     return `rst-td--align-${align || 'left'}`;
+}
+
+function getColumnWidth<T>(
+    column: InternalColumn<T>,
+    columnWidths: Record<string, number>,
+): number | undefined {
+    const storedWidth = columnWidths[column.id];
+    if (typeof storedWidth === 'number') return storedWidth;
+    if (typeof column.width === 'number') return column.width;
+    if (typeof column.width === 'string') {
+        const parsed = Number.parseFloat(column.width);
+        if (!Number.isNaN(parsed)) return parsed;
+    }
+    return undefined;
 }
 
 function EmptyIcon() {
@@ -42,7 +56,7 @@ export function SmartTableBody<T>({
         return (
             <tbody className="rst-tbody">
                 <tr className="rst-tr">
-                    <td style={{ width: columnWidths[columns[0]?.id] ?? 150 }} className="rst-empty" colSpan={columns.length}>
+                    <td className="rst-empty" colSpan={columns.length}>
                         <EmptyIcon />
                         {emptyMessage}
                     </td>
@@ -61,17 +75,21 @@ export function SmartTableBody<T>({
                         .join(' ')}
                     onClick={() => onRowClick?.(row)}
                 >
-                    {columns.map((column) => (
-                        <td
-                            style={{ width: columnWidths[column.id] ?? column.width ?? 150 }}
-                            key={String(column.key)}
-                            className={['rst-td', alignClass(column.align)].join(' ')}
-                        >
-                            {column.render
-                                ? column.render(row[column.key as keyof T], row)
-                                : String(row[column.key as keyof T] ?? '')}
-                        </td>
-                    ))}
+                    {columns.map((column) => {
+                        const width = getColumnWidth(column, columnWidths);
+                        return (
+                            <td
+                                key={String(column.key)}
+                                data-column-key={column.id}
+                                style={width !== undefined ? { width } : undefined}
+                                className={['rst-td', alignClass(column.align)].join(' ')}
+                            >
+                                {column.render
+                                    ? column.render(row[column.key as keyof T], row)
+                                    : String(row[column.key as keyof T] ?? '')}
+                            </td>
+                        );
+                    })}
                 </tr>
             ))}
         </tbody>

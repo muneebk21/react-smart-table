@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { type InternalColumn, type SortConfig } from '../types';
 
 interface SmartTableHeaderProps<T> {
@@ -7,11 +6,9 @@ interface SmartTableHeaderProps<T> {
     sortConfig?: SortConfig | null;
     onSort?: (key: string) => void;
     filterable?: boolean;
-    resizeable?: boolean;
     filters?: Record<string, string>;
     onFilter?: (key: string, value: string) => void;
-    columnWidths?: Record<string, number>,
-    startResize?: (key: string, startX: number, currentWidth: number) => void,
+    columnWidths?: Record<string, number>;
 }
 
 function SortIcon({ direction }: { direction?: 'asc' | 'desc' | null | undefined }) {
@@ -35,6 +32,20 @@ function alignClass(align?: 'left' | 'center' | 'right') {
     return `rst-th--align-${align || 'left'}`;
 }
 
+function getColumnWidth<T>(
+    column: InternalColumn<T>,
+    columnWidths: Record<string, number>,
+): number {
+    const storedWidth = columnWidths[column.id];
+    if (typeof storedWidth === 'number') return storedWidth;
+    if (typeof column.width === 'number') return column.width;
+    if (typeof column.width === 'string') {
+        const parsed = Number.parseFloat(column.width);
+        if (!Number.isNaN(parsed)) return parsed;
+    }
+    return 150;
+}
+
 export function SmartTableHeader<T>({
     columns,
     sortable,
@@ -42,34 +53,9 @@ export function SmartTableHeader<T>({
     onSort,
     filterable,
     filters,
-    resizeable,
     onFilter,
     columnWidths = {},
-    startResize,
 }: SmartTableHeaderProps<T>) {
-
-    const [resizingColumn, setResizingColumn] = useState<string | null>(null);
-    const onResizeStart = (e: React.MouseEvent, key: string) => {
-        if (!resizeable) return;
-        const startX = e.clientX;
-        const currentWidth =
-            columnWidths[key] ?? 150;
-        setResizingColumn(key);
-        if (startResize)
-            startResize(key, startX, currentWidth);
-    };
-
-    const onGlobalMouseUp = () => {
-        setResizingColumn(null);
-    };
-
-    useState(() => {
-        document.addEventListener('mouseup', onGlobalMouseUp);
-        return () => {
-            document.removeEventListener('mouseup', onGlobalMouseUp);
-        };
-    });
-
     return (
         <thead className="rst-thead">
             <tr>
@@ -77,9 +63,9 @@ export function SmartTableHeader<T>({
                     const key = String(column.key);
                     const isSortable = Boolean(sortable && column.sortable);
                     const isSorted = sortConfig?.key === column.key;
+                    const width = getColumnWidth(column, columnWidths);
                     const thClassName = [
                         'rst-th',
-                        resizeable && resizingColumn === column.key && 'rst-resizer',
                         alignClass(column.align),
                         isSortable ? 'rst-th--sortable' : '',
                         isSorted ? 'rst-th--sorted' : '',
@@ -91,13 +77,13 @@ export function SmartTableHeader<T>({
                         <th
                             key={key}
                             className={thClassName}
-                            style={{ width: columnWidths[column.id] ?? column.width ?? 150 }}
+                            data-column-key={column.id}
+                            style={{ width }}
                             onClick={() => {
                                 if (isSortable && onSort) {
                                     onSort(key);
                                 }
                             }}
-                            onMouseDown={(e) => onResizeStart(e, column.id)}
                             aria-sort={
                                 isSorted
                                     ? sortConfig?.direction === 'asc'
@@ -112,9 +98,7 @@ export function SmartTableHeader<T>({
                                 <span>{column.header}</span>
                                 {isSortable && (
                                     <SortIcon
-                                        direction={
-                                            isSorted ? sortConfig?.direction : undefined
-                                        }
+                                        direction={isSorted ? sortConfig?.direction : undefined}
                                     />
                                 )}
                             </div>

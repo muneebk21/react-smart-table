@@ -20,8 +20,8 @@ function App() {
     const [useCustomBrand, setUseCustomBrand] = useState(false);
 
     const [data] = useState<User[]>([
-        { id: 1, name: 'Anyan John Doe', email: 'john@example.com', age: 30, status: 'active' },
-        { id: 2, name: 'Anyan Jane Smith', email: 'jane@example.com', age: 25, status: 'active' },
+        { id: 1, name: 'Anyan John Doe', email: 'johnjohnjohnjohnjohnjohnjohnjohnjohnjohnjohn@example.com', age: 30, status: 'active' },
+        { id: 2, name: 'Anyan Jane Smith Anyan Jane Smith Anyan Jane Smith Anyan Jane Smith Anyan Jane Smith ', email: 'jane@example.com', age: 25, status: 'active' },
         { id: 3, name: 'Anyan Bob Johnson', email: 'bob@example.com', age: 35, status: 'inactive' },
         { id: 4, name: 'Anyan Alice Brown', email: 'alice@example.com', age: 28, status: 'active' },
         { id: 5, name: 'Anyan Charlie Wilson', email: 'charlie@example.com', age: 32, status: 'inactive' },
@@ -131,20 +131,6 @@ function App() {
                     onRowClick={handleRowClick}
                     sortable
                     filterable
-                    theme={tableTheme}
-                />
-            </section>
-
-            <section className="demo-section">
-                <h2>With Resizeabel Columns</h2>
-                <p className="demo-description">Double click header cell to resize.</p>
-                <SmartTable
-                    data={data}
-                    columns={columns}
-                    onRowClick={handleRowClick}
-                    sortable
-                    filterable
-                    resizeable
                     theme={tableTheme}
                 />
             </section>

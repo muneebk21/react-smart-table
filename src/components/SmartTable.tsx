@@ -4,8 +4,44 @@ import { SmartTableHeader } from './SmartTableHeader';
 import { SmartTableBody } from './SmartTableBody';
 import '../styles/smart-table.css';
 import { useNormalizedColumns } from '../hooks/useNormalizedColumns';
-import { useMemo } from 'react';
+import { useRef } from 'react';
 import { useTableState } from '../hooks/useTableState';
+
+function applySort<T extends Record<string, unknown>>(
+    rows: T[],
+    sort: { key: string | null; direction: 'asc' | 'desc' | null },
+) {
+    if (!sort.key || !sort.direction) return rows;
+    return [...rows].sort((a, b) => {
+        const aValue = a[sort.key as keyof T];
+        const bValue = b[sort.key as keyof T];
+        if (aValue === bValue) return 0;
+        return sort.direction === 'asc'
+            ? aValue > bValue
+                ? 1
+                : -1
+            : aValue < bValue
+                ? 1
+                : -1;
+    });
+}
+
+function applyFilters<T extends Record<string, unknown>>(
+    rows: T[],
+    filters: Record<string, string>,
+) {
+    const keys = Object.keys(filters);
+    if (keys.length === 0) return rows;
+    return rows.filter((row) =>
+        keys.every((key) => {
+            const filterValue = filters[key]?.toLowerCase();
+            if (!filterValue) return true;
+            return String(row[key as keyof T] ?? '')
+                .toLowerCase()
+                .includes(filterValue);
+        }),
+    );
+}
 
 export function SmartTable<T extends Record<string, unknown>>({
     data,
@@ -13,7 +49,6 @@ export function SmartTable<T extends Record<string, unknown>>({
     sortable = true,
     filterable = true,
     pagination = false,
-    resizeable = false,
     itemsPerPage = 10,
     theme,
     className = '',
@@ -21,111 +56,37 @@ export function SmartTable<T extends Record<string, unknown>>({
     onRowClick,
     emptyMessage = 'No data available',
 }: SmartTableProps<T>) {
+    const columnKeys = columns.map((c) => String(c.key));
+    const { state, dispatch } = useTableState(itemsPerPage, columnKeys);
 
-    const columnKeys = useMemo(
-        () => columns.map(c => String(c.key)),
-        [columns]
-    );
+    const tableWrapperRef = useRef<HTMLDivElement>(null);
 
-    const { state, dispatch } = useTableState(
-        itemsPerPage,
-        columnKeys
-    );
+    const filteredData = applyFilters(data, state.filters);
+    const sortedData = applySort(filteredData, state.sort);
 
-    const applySort = (
-        data: T[],
-        sort: { key: string | null; direction: "asc" | "desc" | null }
-    ) => {
-        if (!sort.key || !sort.direction) return data;
-        const sorted = [...data];
-        sorted.sort((a, b) => {
-            const aValue = a[sort.key as keyof T];
-            const bValue = b[sort.key as keyof T];
-            if (aValue === bValue) return 0;
-            if (sort.direction === "asc") {
-                return aValue > bValue ? 1 : -1;
-            }
-            return aValue < bValue ? 1 : -1;
-        });
-        return sorted;
-    }
+    const totalPages = pagination ? Math.ceil(sortedData.length / state.pagination.pageSize) : 1;
 
-    const applyFilters = (
-        data: T[],
-        filters: Record<string, string>
-    ) => {
-        const keys = Object.keys(filters);
-        if (keys.length === 0) return data;
-        return data.filter((row) => {
-            return keys.every((key) => {
-                const filterValue = filters[key]?.toLowerCase();
-                if (!filterValue) return true;
-                const cellValue = String(row[key as keyof T] ?? "").toLowerCase();
-                return cellValue.includes(filterValue);
-            });
-        });
-    }
+    const paginatedData = pagination
+        ? sortedData.slice(
+              (state.pagination.page - 1) * state.pagination.pageSize,
+              state.pagination.page * state.pagination.pageSize,
+          )
+        : sortedData;
 
-    const filteredData = useMemo(() => {
-        return applyFilters(data, state.filters);
-    }, [data, state.filters]);
+    const handleSort = (key: string) => dispatch({ type: 'SET_SORT', key });
 
-    const sortedData = useMemo(() => {
-        return applySort(filteredData, state.sort);
-    }, [filteredData, state.sort]);
+    const handleFilter = (key: string, value: string) =>
+        dispatch({ type: 'SET_FILTER', key, value });
 
-    const paginatedData = useMemo(() => {
-        if (!pagination) return sortedData;
-        const start =
-            (state.pagination.page - 1) * state.pagination.pageSize;
-        const end = start + state.pagination.pageSize;
-        return sortedData.slice(start, end);
-    }, [sortedData, state.pagination, pagination]);
+    const nextPage = () =>
+        dispatch({ type: 'SET_PAGE', page: Math.min(state.pagination.page + 1, totalPages) });
 
-    const totalPages = useMemo(() => {
-        if (!pagination) return 1;
-        return Math.ceil(sortedData.length / state.pagination.pageSize);
-    }, [sortedData.length, state.pagination.pageSize, pagination]);
+    const previousPage = () =>
+        dispatch({ type: 'SET_PAGE', page: Math.max(state.pagination.page - 1, 1) });
 
-    const nextPage = () => {
-        dispatch({
-            type: "SET_PAGE",
-            page: Math.min(state.pagination.page + 1, totalPages),
-        });
-    };
-
-    const previousPage = () => {
-        dispatch({
-            type: "SET_PAGE",
-            page: Math.max(state.pagination.page - 1, 1),
-        });
-    };
-
-
-    const displayData = paginatedData;
     const { mode, cssVariables, hasCustomTokens } = resolveTableTheme(theme);
     const rootClassName = ['rst-root', className].filter(Boolean).join(' ');
     const normalizedColumns = useNormalizedColumns(columns);
-
-
-    const startResize = (key: string, startX: number, startWidth: number) => {
-        const onMouseMove = (e: MouseEvent) => {
-            const newWidth = Math.max(80, startWidth + (e.clientX - startX));
-            dispatch({
-                type: "SET_COLUMN_WIDTH",
-                key,
-                width: newWidth,
-            });
-        };
-
-        const onMouseUp = () => {
-            window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("mouseup", onMouseUp);
-        };
-
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-    };
 
     return (
         <div
@@ -136,30 +97,26 @@ export function SmartTable<T extends Record<string, unknown>>({
                 ...style,
             }}
         >
-            <div className="rst-table-wrapper">
+            <div
+                className="rst-table-wrapper"
+                ref={tableWrapperRef}
+                role="region"
+                aria-label="Scrollable table"
+                tabIndex={0}
+            >
                 <table className="rst-table">
                     <SmartTableHeader
                         columns={normalizedColumns}
                         sortable={sortable}
                         sortConfig={state.sort}
-                        onSort={(key) =>
-                            dispatch({ type: "SET_SORT", key })
-                        }
+                        onSort={handleSort}
                         filterable={filterable}
                         filters={state.filters}
-                        onFilter={(key, value) =>
-                            dispatch({
-                                type: "SET_FILTER",
-                                key,
-                                value,
-                            })
-                        }
+                        onFilter={handleFilter}
                         columnWidths={state.columnWidths}
-                        resizeable={resizeable}
-                        startResize={startResize}
                     />
                     <SmartTableBody
-                        data={displayData}
+                        data={paginatedData}
                         columns={normalizedColumns}
                         onRowClick={onRowClick}
                         emptyMessage={emptyMessage}

@@ -37,7 +37,6 @@ export interface SmartTableProps<T> {
     sortable?: boolean;
     filterable?: boolean;
     pagination?: boolean;
-    resizeable?: boolean;
     itemsPerPage?: number;
     theme?: TableThemeInput;
     className?: string;
